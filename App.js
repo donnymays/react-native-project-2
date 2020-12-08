@@ -1,42 +1,43 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TextInput, Button, ScrollView, FlatList } from "react-native";
+import { StyleSheet, Text, View, Button, FlatList } from "react-native";
+import Topping from './components/Topping'; 
+import ToppingInput from './components/ToppingInput';
+
 
 export default function App() {
-  const [enteredTopping, setEnteredTopping] = useState('');
+  
   const [favoriteToppings, setFavoriteToppings] = useState([]);
+  const [isAddMode, setIsAddMode] = useState(false);
 
-  const toppingInputHandler = (enteredText) => {
-    setEnteredTopping(enteredText);
-  }
+  
 
-  const addToppingHandler = () => {
+  const addToppingHandler = toppingName => {
     setFavoriteToppings(currentToppings => [
       ...currentToppings, 
-      { key: Math.random().toString(), value: enteredTopping }
+      { id: Math.random().toString(), value: toppingName }
     ]);
+      setIsAddMode(false);
   };
 
+  const removeTopping = toppingId => {
+    setFavoriteToppings(currentToppings => {
+      return currentToppings.filter((topping) => topping.id !== toppingId);
+    })
+  }
+
+  const cancelAddModeHandler = () => {
+    setIsAddMode(false);
+  }
+
   return (
-    <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput 
-        placeholder="Favorite Pizza Topping" 
-        style={styles.input} 
-        onChangeText={toppingInputHandler}
-        value={enteredTopping}/>
-        <Button 
-        title="Add!"
-        onPress={addToppingHandler}/>
-      </View>
+    <View style={styles.screen} animationType="slide">
+      <Button title="Add New Topping" onPress={() => setIsAddMode(true)} />
+      <ToppingInput visible={isAddMode} onAddTopping={addToppingHandler} onCancelPress={cancelAddModeHandler} />
       <FlatList
-      keyExtractor={(item, index) => item.key}
+        keyExtractor={(item, index) => item.id}
         data={favoriteToppings} 
-        renderItem={itemData => (
-          <View style={styles.listItem}>
-            <Text>{itemData.item.value}</Text>
-          </View>
-        )}
+        renderItem={itemData => <Topping title={itemData.item.value} id={itemData.item.id} onDelete={removeTopping}/>}
       />  
     </View>
   );
@@ -45,23 +46,5 @@ export default function App() {
 const styles = StyleSheet.create({
   screen: {
     padding: 50,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  input: {
-    width: "80%",
-    borderColor: "black",
-    borderWidth: 1,
-    padding: 10,
-  },
-  listItem: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: '#ccc',
-    borderColor: 'black',
-    borderWidth: 1
   }
 });
