@@ -9,7 +9,6 @@ const Topping = props => {
         <Text>{props.title}</Text>
       </View>
     </TouchableOpacity>
-  
   )
 }
 
